@@ -47,3 +47,12 @@ Loading validates the candidate before replacing the current deal. Invalid
 loads leave the current deal usable and show the backend's reason. If the
 connection itself fails, open a new instance and load an explicit snapshot.
 No account, external network service or paid API is required to play.
+
+## Validate the appearance
+
+For GUI acceptance, load ETAF's `scripts/emacs-gui-verifier.el` and this
+application's `scripts/etaf-solitaire-gui-scenarios.el` in a dedicated
+graphical Emacs, then run `etaf-solitaire-gui-run` with a fresh evidence
+directory. It drives native keys, both themes, the viewport matrix, a local
+snapshot round trip and a second independent deal. Inspect the saved
+screenshots; functional assertions alone do not certify appearance.
