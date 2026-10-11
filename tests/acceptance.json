@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "load_path": [".", "../../etaf-gamekit", "../../etaf-ui", "../../etaf", "../../ebox", "../../ecss"],
+  "support": [],
+  "cases": [
+    {"name": "etaf-solitaire-card-input-moves-native-cards-and-restores-history", "file": "tests/etaf-solitaire-tests.el", "purpose": "Card and foundation activation move native cards; undo/redo restore the same deal."},
+    {"name": "etaf-solitaire-themes-and-resize-preserve-the-deal", "file": "tests/etaf-solitaire-tests.el", "purpose": "Both themes and narrow layouts preserve the game, card dimensions and selected move."},
+    {"name": "etaf-solitaire-escape-dismisses-the-selection", "file": "tests/etaf-solitaire-tests.el", "purpose": "Framework Escape clears a picked card without changing the deal; the later target press stays inert."}
+  ]
+}
