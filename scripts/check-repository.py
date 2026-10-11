@@ -13,15 +13,34 @@ import sys
 import tempfile
 from urllib.parse import unquote
 
-POLICY_VERSION = 9
+POLICY_VERSION = 10
 DOC_NAMES = {'README.md', 'README.zh-CN.md', 'CHANGELOG.md', 'CHANGELOG.zh-CN.md',
              'AGENTS.md', 'docs/manual.md', 'docs/manual.zh-CN.md',
              'docs/architecture.md', 'docs/architecture.zh-CN.md'}
+WORKSPACE_DOC_NAMES = {'docs/keyboard-navigation.zh-CN.md'}
 DIRS = {'lisp', 'tests', 'examples', 'benchmarks', 'scripts', 'docs', 'native',
         'dictionaries', 'design', '.github', '.gitea', '.githooks'}
 SKIP = {'.git', '.jj', '__pycache__', 'target', '.omx', '.worktrees', '.claude'}
 SHARED = ('scripts/check-api.py', 'scripts/check-api.el', 'scripts/api-workspace.json', '.editorconfig', 'scripts/check-repository.py', 'scripts/run-acceptance.py', '.githooks/pre-commit', '.githooks/commit-msg', 'scripts/check-commit-message.py',
           '.github/workflows/structure.yml')
+
+
+def provider_directory(root):
+    """Return the checkout directory holding the sibling provider repositories.
+
+    Providers normally sit beside the repository.  A nested application
+    workspace keeps them one level above its own checkout, so accept the
+    nearest ancestor that holds a provider named by the API registry.
+    """
+    try:
+        names = json.loads((Path(__file__).resolve().parent / 'api-workspace.json').read_text())
+    except (OSError, ValueError):
+        names = {}
+    providers = Path(root).resolve().parent
+    if not any((providers / name).is_dir() for name in names) and any(
+            (providers.parent / name).is_dir() for name in names):
+        providers = providers.parent
+    return providers
 
 
 def git_checkout_p(root):
@@ -58,6 +77,7 @@ def check(root, files=None):
     files = inventory(root) if files is None else files
     errors = []
     workspace = (root / 'workspace.json').exists()
+    doc_names = DOC_NAMES | (WORKSPACE_DOC_NAMES if workspace else set())
     allowed_dirs = DIRS | (set(__import__('json').loads((root / 'workspace.json').read_text())['repositories']) if workspace else set())
     def fail(path, message): errors.append(f'{path}: {message}')
     for required in ['README.md', 'Makefile', 'scripts/check-repository.py',
@@ -83,7 +103,7 @@ def check(root, files=None):
             if old != spelling: fail(f, f'case collision with {old}')
         if len(parts) > 1 and parts[0] not in allowed_dirs:
             fail(f, 'unapproved top-level directory')
-        if len(parts) == 1 and f not in DOC_NAMES and f not in {
+        if len(parts) == 1 and f not in doc_names and f not in {
                 'Makefile', 'LICENSE', 'COPYING', 'NOTICE', '.gitignore',
                 '.gitattributes', '.editorconfig', 'workspace.json',
                 'release-dependencies.json'} and not f.endswith('.el'):
@@ -93,9 +113,9 @@ def check(root, files=None):
                 fail(f, 'delete native internal unit tests; validate through public package APIs')
         # Preserve upstream dictionary/vendor licensing and resource names.
         external = parts[0] == 'dictionaries' or f.startswith('native/vendor/')
-        if f.endswith('.md') and f not in DOC_NAMES and not external and not instructions:
+        if f.endswith('.md') and f not in doc_names and not external and not instructions:
             fail(f, 'use README, CHANGELOG, docs/manual or docs/architecture; merge or delete other documents')
-        if f.startswith('docs/') and not instructions and (len(parts) != 2 or f not in DOC_NAMES):
+        if f.startswith('docs/') and not instructions and (len(parts) != 2 or f not in doc_names):
             fail(f, 'documentation must be flat and use the fixed document names')
         if re.search(r'(^|/)(?:\.DS_Store|[^/]+\.(?:elc|eln|pyc|o|so|dylib|dll))$', f) or 'target' in parts or '__pycache__' in parts:
             fail(f, 'generated artifact must not be tracked')
@@ -202,26 +222,17 @@ def main():
             files = sorted(str(p.relative_to(snapshot)) for p in snapshot.rglob('*') if p.is_file())
             errors = check(snapshot, files)
             if not errors and not (snapshot / 'workspace.json').exists():
-                providers = args.root.resolve().parent
-                if not (providers/'etaf').is_dir() and (providers.parent/'etaf').is_dir():
-                    providers = providers.parent
                 result = subprocess.run([sys.executable, str(snapshot/'scripts/check-api.py'),
-                                         '--root', str(snapshot), '--providers-dir', str(providers)],
+                                         '--root', str(snapshot), '--providers-dir', str(provider_directory(args.root))],
                                         capture_output=True, text=True)
                 if result.returncode: errors.append(result.stderr.strip())
     else:
         errors = check(args.root)
         if not errors:
             mode = '--workspace' if (args.root/'workspace.json').exists() else '--root'
-            # A standalone package keeps its providers beside it; this package
-            # is an application nested under the etaf-apps checkout, so its
-            # providers live two directories up.
-            providers = args.root.resolve().parent
-            if not (providers/'etaf').is_dir() and (providers.parent/'etaf').is_dir():
-                providers = providers.parent
             result = subprocess.run([sys.executable, str(args.root/'scripts/check-api.py'),
                                      mode, str(args.root.resolve()),
-                                     '--providers-dir', str(providers)],
+                                     '--providers-dir', str(provider_directory(args.root))],
                                     capture_output=True, text=True)
             if result.returncode: errors.append(result.stderr.strip())
     if errors:
