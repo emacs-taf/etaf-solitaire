@@ -3,7 +3,7 @@
 EMACS ?= emacs
 PROVIDER_ROOT ?= $(if $(wildcard ../etaf/etaf.el),..,../..)
 LOAD_PATH = -L . -L lisp -L $(PROVIDER_ROOT)/etaf-gamekit -L $(PROVIDER_ROOT)/etaf-ui -L $(PROVIDER_ROOT)/etaf -L $(PROVIDER_ROOT)/ebox -L $(PROVIDER_ROOT)/ecss -L $(PROVIDER_ROOT)/etaf/scripts
-SOURCES = lisp/etaf-solitaire-theme.el lisp/etaf-solitaire-model.el lisp/etaf-solitaire-views.el lisp/etaf-solitaire-app.el etaf-solitaire.el tests/etaf-solitaire-tests.el scripts/etaf-solitaire-gui-scenarios.el
+SOURCES = lisp/etaf-solitaire-theme.el lisp/etaf-solitaire-model.el lisp/etaf-solitaire-views.el lisp/etaf-solitaire-app.el etaf-solitaire.el tests/etaf-solitaire-tests.el scripts/etaf-solitaire-gui-scenarios.el benchmarks/performance-scenarios.el
 
 .PHONY: compile test check clean structure-check setup-hooks acceptance api-check
 compile: clean
@@ -17,6 +17,6 @@ api-check:
 test: acceptance
 check: structure-check compile acceptance api-check
 clean:
-	rm -f *.elc lisp/*.elc tests/*.elc scripts/*.elc
+	rm -f *.elc lisp/*.elc tests/*.elc scripts/*.elc benchmarks/*.elc
 setup-hooks:
 	git config --local core.hooksPath .githooks
