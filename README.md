@@ -1,7 +1,7 @@
 # Verdant Solitaire
 
 A native ETAF card table for K+ Klondike, built as an independent
-[GameKit](https://forgejo.vhkd.top/emacs-taf/etaf-gamekit) application.
+[GameKit](https://github.com/emacs-taf/etaf-gamekit) application.
 OpenSpiel owns the rules, legal moves, chance outcomes and undo/redo history;
 this application owns the presentation, selection and the launch command.
 
@@ -32,12 +32,12 @@ choices. It is not a Windows Klondike rules emulator.
 ## Installation
 
 ```sh
-git clone https://forgejo.vhkd.top/emacs-taf/ecss.git
-git clone https://forgejo.vhkd.top/emacs-taf/ebox.git
-git clone https://forgejo.vhkd.top/emacs-taf/etaf.git
-git clone https://forgejo.vhkd.top/emacs-taf/etaf-ui.git
-git clone https://forgejo.vhkd.top/emacs-taf/etaf-gamekit.git
-git clone https://forgejo.vhkd.top/emacs-taf/etaf-solitaire.git
+git clone https://github.com/emacs-taf/ecss.git
+git clone https://github.com/emacs-taf/ebox.git
+git clone https://github.com/emacs-taf/etaf.git
+git clone https://github.com/emacs-taf/etaf-ui.git
+git clone https://github.com/emacs-taf/etaf-gamekit.git
+git clone https://github.com/emacs-taf/etaf-solitaire.git
 make -C etaf-gamekit engine-openspiel GAMEKIT_PYTHON=python3.11
 ```
 
@@ -91,7 +91,7 @@ GUI appearance and performance are separate acceptance requirements; the
 - [Playing Verdant](docs/manual.md) — rules, controls, appearance, save and
   recovery.
 - [Package entry](etaf-solitaire.el) — the supported API inventory.
-- [GameKit](https://forgejo.vhkd.top/emacs-taf/etaf-gamekit) — the shared game
+- [GameKit](https://github.com/emacs-taf/etaf-gamekit) — the shared game
   framework, its adapters and backend installation.
 
 ## License
