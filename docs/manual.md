@@ -34,6 +34,10 @@ mode. Set it to `light` or `dark` to choose the initial mode of new games.
 The theme button and `T` toggle the current instance independently; the backend,
 deal and local selection remain alive, and other instances are not recolored.
 
+The complete table is horizontally centered and sits slightly above the
+vertical center, sharing surplus height 2:3 above and below. This outer space
+disappears in short windows; the table never stretches to fill unused height.
+
 Cards stay nine character columns by five text rows, with one-row exposed
 corners in stacks. Wider windows show legal moves beside the table; narrower
 ones expose that panel through the toolbar. Short windows remove secondary

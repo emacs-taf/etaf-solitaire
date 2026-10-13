@@ -121,7 +121,8 @@
              (compact (etaf-computed (lambda () (< (or (cdr (etaf-viewport)) 44) 42)))))
   :setup (etaf-theme-provide theme)
   :view
-  (column :width '(vw 100) :height '(vh 100) :min-width '(ch 79) :min-height '(lh 30) :cross-align 'center
+  (flex :width '(vw 100) :height '(vh 100) :min-width '(ch 79) :min-height '(lh 30)
+    :flex-direction 'column :align-items 'center
     :background-color (etaf-solitaire--color :ui-bg) :color (etaf-solitaire--color :ui-fg)
     :on-dismiss (lambda () (when (etaf-value selected) (setf (etaf-value selected) nil)))
     :keys (list
@@ -138,7 +139,8 @@
            (list "t" (lambda () (setf (etaf-value appearance)
                                       (if (eq (etaf-value appearance) 'dark) 'light 'dark))) "切换亮暗主题")
            (list "q" (lambda () (etaf-solitaire-close session)) "退出"))
-    (column :ref 'solitaire-root :width 'stretch :max-width '(ch 106) :padding '((lh 1) (ch 2))
+    (box :flex-grow 2 :flex-basis '(lh 0) :min-height '(lh 0))
+    (column :ref 'solitaire-root :flex-shrink 0 :width 'stretch :max-width '(ch 106) :padding '((lh 1) (ch 2))
       :item-gap (if (etaf-value compact) '(lh 0) '(lh 1))
       (flex :width 'stretch :justify-content 'space-between :align-items 'center
         (column
@@ -187,7 +189,8 @@
           (etaf-label :text "四个收集位按同一花色从 A 到 K 排列。牌桌上按红黑交替、点数递减排列；空列接 K。" :wrap-mode 'word)
           (etaf-label :text "这是 OpenSpiel 的 K+ Klondike 变体，不是 Windows 规则复刻。D 浏览折叠翻牌后可用的待用牌；点击明牌，再点击高亮目标。" :wrap-mode 'word)
           (etaf-label :text "H 选择一条合法移动的起点，不保证最优解。U / Y 撤销或重做，隐藏牌的随机结果也会保持。" :wrap-mode 'word)
-          (etaf-label :text "牌面保持固定尺寸。窄窗口把辅助面板收进“合法移动”；不足 79 列 × 30 行时保留牌桌并裁切或滚动。" :wrap-mode 'word))))))
+          (etaf-label :text "牌面保持固定尺寸。窄窗口把辅助面板收进“合法移动”；不足 79 列 × 30 行时保留牌桌并裁切或滚动。" :wrap-mode 'word))))
+    (box :flex-grow 3 :flex-basis '(lh 0) :min-height '(lh 0))))
 
 (defun etaf-solitaire--view (session)
   "Build this application's presentation through public framework APIs."
