@@ -18,6 +18,18 @@
 ;; the opening frame's background mode. Each instance can switch independently
 ;; with the theme button or T without changing its game state.
 ;;
+;; Function: etaf-solitaire-create (&optional seed)
+;;;###autoload (autoload 'etaf-solitaire-create "etaf-solitaire" nil t)
+;; Create and return an independent GameKit session without displaying it.
+;; SEED is an optional integer; omitted creates a fresh random deal. The caller
+;; owns display and lifecycle; pass the result to etaf-solitaire-view and
+;; release it with etaf-gamekit-close.
+;;
+;; Function: etaf-solitaire-view (session)
+;;;###autoload (autoload 'etaf-solitaire-view "etaf-solitaire" nil t)
+;; Return the reactive View for SESSION, suitable for embedding in a host such
+;; as an etaf-desktop window. The caller owns SESSION's display and lifecycle.
+;;
 ;; Function: etaf-solitaire-open (&optional seed)
 ;;;###autoload (autoload 'etaf-solitaire-open "etaf-solitaire" nil t)
 ;; Open and display an independent game; return its GameKit instance.

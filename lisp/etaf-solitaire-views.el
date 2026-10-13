@@ -196,5 +196,12 @@
   "Build this application's presentation through public framework APIs."
   (etaf-view (etaf-solitaire--app :session session)))
 
+(defun etaf-solitaire-view (session)
+  "Return SESSION's reactive View for embedding in a host such as etaf-desktop.
+
+The caller owns SESSION's display and lifecycle; release it with
+`etaf-gamekit-close'."
+  (etaf-solitaire--view session))
+
 (provide 'etaf-solitaire-views)
 ;;; etaf-solitaire-views.el ends here
