@@ -121,7 +121,7 @@
              (compact (etaf-computed (lambda () (< (or (cdr (etaf-viewport)) 44) 42)))))
   :setup (etaf-theme-provide theme)
   :view
-  (flex :width '(vw 100) :height '(vh 100) :min-width '(ch 79) :min-height '(lh 30)
+  (flex :width 'stretch :height 'stretch :min-width '(ch 79) :min-height '(lh 30)
     :flex-direction 'column :align-items 'center
     :background-color (etaf-solitaire--color :ui-bg) :color (etaf-solitaire--color :ui-fg)
     :on-dismiss (lambda () (when (etaf-value selected) (setf (etaf-value selected) nil)))
