@@ -22,9 +22,17 @@ reimplement the rules. The native transition limit is configured to 600.
 - `U` and `Y` restore the preceding/following native action, including random reveals.
 - `N` starts a new seeded deal. Save first if the current deal should be retained.
 - `C-s` / Save and `C-o` / Load use explicit local snapshot files.
-- `F1` opens the game's rules and controls. `?` shows effective scoped key bindings.
+- `F1`, `?` and the toolbar's 说明 button open the same read-only help.
 - `Escape` clears the current selection or dismisses the innermost dialog.
 - `Q` closes the instance and buffer. Closing never saves automatically.
+
+Help shows the effective bindings and rules in the current game buffer, without
+splitting the window or opening another application. Wide windows use two
+columns; narrow ones use a scrolling column. `/` starts search. Escape leaves
+search editing first, then closes help without clearing the selected card.
+Clicking the shade also closes help without activating the covered table.
+The compact **合法移动** dialog likewise closes from its shade; help opened over
+it closes only the top layer and returns focus to that dialog.
 
 ## Appearance and layout
 

@@ -69,7 +69,7 @@ Add every provider root and this repository to `load-path`:
 | `N` | start a new seeded deal; save first to retain the current one |
 | `C-s` / `C-o` (or Save / Load) | save or load an explicit local snapshot |
 | `T` | switch between the light and dark palettes |
-| `F1` / `?` | rules and controls / the effective scoped key bindings |
+| `F1` / `?` / 说明 | searchable rules and effective controls in the current buffer |
 | `Escape` | clear the selection or dismiss the innermost dialog |
 | `Q` | close the game without an implicit save |
 

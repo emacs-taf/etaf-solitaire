@@ -101,8 +101,8 @@ assertions alone do not certify appearance."
                       (lambda () (= (etaf-gamekit-view session :action_count) 1)) t)
               (key "undo" "u" (lambda () (= (etaf-gamekit-view session :action_count) 0)))
               (key "redo" "y" (lambda () (= (etaf-gamekit-view session :action_count) 1)))
-              (key "help" "<f1>" (lambda () (string-match-p "VERDANT · 玩法" (text))) t)
-              (key "close-help" "<escape>" (lambda () (not (string-match-p "VERDANT · 玩法" (text)))))
+              (key "help" "<f1>" (lambda () (string-match-p "快捷键 · 只读" (text))) t)
+              (key "close-help" "<escape>" (lambda () (not (string-match-p "快捷键 · 只读" (text)))))
               (action "save"
                       (lambda ()
                         (setq snapshot (etaf-gamekit-observation session))

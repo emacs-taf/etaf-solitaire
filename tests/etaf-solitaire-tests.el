@@ -96,5 +96,87 @@
           (should (= (etaf-gamekit-view session :action_count) 0)))
       (etaf-solitaire-test--close session))))
 
+(defun etaf-solitaire-test--help-visible-p (runtime)
+  "Whether RUNTIME exposes the shared help's close control."
+  (cl-some (lambda (entry)
+             (equal (plist-get (cdr entry) :aria-label) "关闭帮助"))
+           (etaf-runtime-host-props-entries runtime)))
+
+(ert-deftest etaf-solitaire-help-entries-preserve-the-selected-card ()
+  "F1, the toolbar and question mark share read-only help without clearing selection."
+  (save-window-excursion
+    (let ((session (etaf-solitaire-open 11)))
+      (unwind-protect
+          (let* ((buffer (etaf-gamekit-buffer session))
+                 (runtime (etaf-runtime-for-buffer buffer)))
+            (etaf-solitaire-test--wait session)
+            (etaf-dispatch-event runtime 'solitaire-card-A♣ 'press)
+            (dolist (entry '("<f1>" button "?"))
+              (etaf-focus runtime 'solitaire-help)
+              (let ((before (etaf-gamekit-observation session))
+                    (windows (window-list)) (buffers (buffer-list)))
+                (if (eq entry 'button) (etaf-activate runtime)
+                  (execute-kbd-macro (kbd entry)))
+                (let* ((visible (etaf-solitaire-test--help-visible-p runtime))
+                       (data (etaf-help-data runtime))
+                       (title (plist-get data :title))
+                       (notes (string-join (plist-get data :notes) " ")))
+                  (should visible)
+                  (should (equal title "纸牌接龙"))
+                  (should (string-match-p (regexp-quote "K+ Klondike") notes))
+                  (execute-kbd-macro (kbd "? d h n u y q"))
+                  (let ((after (etaf-help-data runtime)))
+                    (should (equal data after))))
+                (should (equal windows (window-list)))
+                (should (equal buffers (buffer-list)))
+                (should (eq buffer (window-buffer)))
+                (execute-kbd-macro (kbd "/ n ? <escape>"))
+                (let ((visible (etaf-solitaire-test--help-visible-p runtime))
+                      (editing (not (null (etaf-text-input-active-p runtime)))))
+                  (should visible)
+                  (should-not editing))
+                (execute-kbd-macro (kbd "<escape>"))
+                (etaf-solitaire-test--wait session)
+                (let ((after (etaf-gamekit-observation session))
+                      (focus (etaf-focused-host-ref runtime))
+                      (selected (string-match-p
+                                 "已选 A♣"
+                                 (buffer-substring-no-properties (point-min) (point-max))))
+                      (closed-again (etaf-help-close runtime)))
+                  (should (equal before after))
+                  (should (eq focus 'solitaire-help))
+                  (should selected)
+                  (should-not closed-again))))
+            (etaf-dispatch-event runtime 'solitaire-foundation-2 'press)
+            (etaf-solitaire-test--wait
+             session (lambda () (= (etaf-gamekit-view session :action_count) 1))))
+        (etaf-solitaire-close session)))))
+
+(ert-deftest etaf-solitaire-help-survives-native-move-publication ()
+  "A pending native move publishes beneath help without stealing its scope or focus."
+  (save-window-excursion
+    (let ((session (etaf-solitaire-open 11)))
+      (unwind-protect
+          (let ((runtime (etaf-runtime-for-buffer (etaf-gamekit-buffer session))))
+            (etaf-solitaire-test--wait session)
+            (etaf-dispatch-event runtime 'solitaire-card-A♣ 'press)
+            (etaf-dispatch-event runtime 'solitaire-foundation-2 'press)
+            (etaf-focus runtime 'solitaire-help)
+            (execute-kbd-macro (kbd "<f1>"))
+            (let ((focus (etaf-focused-host-ref runtime))
+                  (snapshot (etaf-help-data runtime)))
+              (etaf-solitaire-test--wait
+               session (lambda () (= (etaf-gamekit-view session :action_count) 1)))
+              (let ((after-focus (etaf-focused-host-ref runtime))
+                    (after-data (etaf-help-data runtime))
+                    (visible (etaf-solitaire-test--help-visible-p runtime)))
+                (should visible)
+                (should (equal focus after-focus))
+                (should (equal snapshot after-data))))
+            (execute-kbd-macro (kbd "<escape> u"))
+            (etaf-solitaire-test--wait
+             session (lambda () (= (etaf-gamekit-view session :action_count) 0))))
+        (etaf-solitaire-close session)))))
+
 (provide 'etaf-solitaire-tests)
 ;;; etaf-solitaire-tests.el ends here

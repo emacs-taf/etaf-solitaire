@@ -116,13 +116,17 @@
                                                    etaf-solitaire--dark-theme etaf-solitaire--light-theme)) :test #'equal))
              (observation (etaf-computed (lambda () (etaf-gamekit-view session)) :test #'equal))
              (table (etaf-computed (lambda () (etaf-solitaire--table (etaf-value observation))) :test #'equal))
-             (selected (etaf-ref nil)) (cursor (etaf-ref 0)) (help (etaf-ref nil)) (hints (etaf-ref nil))
+             (selected (etaf-ref nil)) (cursor (etaf-ref 0)) (hints (etaf-ref nil))
              (wide (etaf-computed (lambda () (>= (or (car (etaf-viewport)) 0) (* 106 (frame-char-width))))))
              (compact (etaf-computed (lambda () (< (or (cdr (etaf-viewport)) 44) 42)))))
   :setup (etaf-theme-provide theme)
   :view
   (flex :width 'stretch :height 'stretch :min-width '(ch 79) :min-height '(lh 30)
-    :flex-direction 'column :align-items 'center
+    :flex-direction 'column :align-items 'center :aria-label "纸牌接龙"
+    :help '("四个收集位按同一花色从 A 到 K 排列。牌桌上按红黑交替、点数递减排列；空列接 K。"
+            "这是 OpenSpiel 的 K+ Klondike 变体，不是 Windows 规则复刻。重复翻牌折叠为可用的待用牌；点击明牌，再点击高亮目标。"
+            "提示选择一条合法移动的起点，不保证最优解。撤销与重做保持隐藏牌的随机结果。"
+            "牌面保持固定尺寸。窄窗口把辅助面板收进“合法移动”；不足 79 列 × 30 行时保留牌桌并裁切或滚动。")
     :background-color (etaf-solitaire--color :ui-bg) :color (etaf-solitaire--color :ui-fg)
     :on-dismiss (lambda () (when (etaf-value selected) (setf (etaf-value selected) nil)))
     :keys (list
@@ -135,7 +139,7 @@
            (list "n" (lambda () (etaf-solitaire--send session selected "reset" (list :seed (random most-positive-fixnum)))) "新局")
            (list "C-s" (lambda () (etaf-solitaire--snapshot session selected "save")) "保存")
            (list "C-o" (lambda () (etaf-solitaire--snapshot session selected "load")) "读取")
-           (list "<f1>" (lambda () (setf (etaf-value help) t)) "游戏说明")
+           (list "<f1>" #'etaf-help "游戏说明")
            (list "t" (lambda () (setf (etaf-value appearance)
                                       (if (eq (etaf-value appearance) 'dark) 'light 'dark))) "切换亮暗主题")
            (list "q" (lambda () (etaf-solitaire-close session)) "退出"))
@@ -161,7 +165,7 @@
             :on-press (lambda () (etaf-solitaire--snapshot session selected "load")))
           (etaf-solitaire--theme-switch :appearance appearance)
           (etaf-button :label "说明" :ref 'solitaire-help :variant 'ghost
-            :on-press (lambda () (setf (etaf-value help) t)))))
+            :on-press #'etaf-help)))
       (etaf-divider)
       (etaf-label :if (null (etaf-value table)) :text "正在发牌…" :variant 'muted)
       (flex :if (etaf-value table) :width 'stretch :gap '((lh 0) (ch 3))
@@ -179,17 +183,10 @@
         :variant 'strong :color (etaf-solitaire--color :ui-accent))
       (etaf-alert :if (etaf-gamekit-last-error session) :title "操作未完成" :message (etaf-gamekit-last-error session) :variant 'danger)
       (etaf-divider)
-      (etaf-label :text "D 下一张  H 提示  U 撤销  Y 重做  N 新局  T 主题  ? 帮助" :variant 'muted)
+      (etaf-label :text "? / F1 查看快捷键与玩法" :variant 'muted)
       (etaf-dialog :open hints :title "合法移动" :width '(ch 34) :compact t
         :on-close (lambda () (setf (etaf-value hints) nil))
-        (etaf-solitaire--hints :session session :table table :selected selected))
-      (etaf-dialog :open help :title "VERDANT · 玩法" :width '(ch 64) :compact t
-        :on-close (lambda () (setf (etaf-value help) nil))
-        (column :item-gap '(lh 1)
-          (etaf-label :text "四个收集位按同一花色从 A 到 K 排列。牌桌上按红黑交替、点数递减排列；空列接 K。" :wrap-mode 'word)
-          (etaf-label :text "这是 OpenSpiel 的 K+ Klondike 变体，不是 Windows 规则复刻。D 浏览折叠翻牌后可用的待用牌；点击明牌，再点击高亮目标。" :wrap-mode 'word)
-          (etaf-label :text "H 选择一条合法移动的起点，不保证最优解。U / Y 撤销或重做，隐藏牌的随机结果也会保持。" :wrap-mode 'word)
-          (etaf-label :text "牌面保持固定尺寸。窄窗口把辅助面板收进“合法移动”；不足 79 列 × 30 行时保留牌桌并裁切或滚动。" :wrap-mode 'word))))
+        (etaf-solitaire--hints :session session :table table :selected selected)))
     (box :flex-grow 3 :flex-basis '(lh 0) :min-height '(lh 0))))
 
 (defun etaf-solitaire--view (session)
