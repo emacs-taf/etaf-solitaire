@@ -3,6 +3,7 @@
   "load_path": [".", "../../etaf-gamekit", "../../etaf-ui", "../../etaf", "../../ebox", "../../ecss"],
   "support": [],
   "cases": [
+    {"name": "etaf-solitaire-waste-activation-follows-the-displayed-card", "file": "tests/etaf-solitaire-tests.el", "purpose": "Browsing updates a retained waste control, whose activation selects the currently displayed card without submitting a native move."},
     {
       "name": "etaf-solitaire-embedded-escape-releases-the-host-after-selection",
       "file": "tests/etaf-solitaire-tests.el",

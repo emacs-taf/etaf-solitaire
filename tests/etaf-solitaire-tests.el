@@ -49,6 +49,30 @@
               (should (equal after (etaf-gamekit-view session :observation))))))
       (etaf-solitaire-test--close session))))
 
+(ert-deftest etaf-solitaire-waste-activation-follows-the-displayed-card ()
+  "A retained waste control activates its current card after browsing."
+  (let ((session (etaf-gamekit-start etaf-solitaire-game :options '(:seed 11))))
+    (unwind-protect
+        (let* ((buffer (etaf-gamekit-buffer session))
+               (runtime (etaf-runtime-for-buffer buffer))
+               (steps 0))
+          (etaf-runtime-refit runtime 1100 44)
+          (etaf-solitaire-test--wait session)
+          (while (and (< steps 24)
+                      (not (equal (plist-get (etaf-runtime-host-props-for runtime 'solitaire-waste)
+                                              :aria-label)
+                                  "3 of hearts")))
+            (etaf-dispatch-event runtime 'solitaire-draw 'press)
+            (cl-incf steps))
+          (should (< steps 24))
+          (should (> steps 0))
+          (etaf-dispatch-event runtime 'solitaire-waste 'press)
+          (with-current-buffer buffer
+            (let ((text (buffer-substring-no-properties (point-min) (point-max))))
+              (should (string-match-p "已选 3♥" text))))
+          (should (= (etaf-gamekit-view session :action_count) 0)))
+      (etaf-solitaire-test--close session))))
+
 (ert-deftest etaf-solitaire-themes-and-resize-preserve-the-deal ()
   "Light/dark switching and narrow layouts preserve state, selection and card metrics."
   (let* ((etaf-solitaire-appearance 'light)
