@@ -23,11 +23,19 @@
              (moves (etaf-computed (lambda () (plist-get (etaf-value table) :moves)) :test #'equal))
              (source (etaf-computed (lambda () (cl-find (etaf-value card-token) (etaf-value moves)
                                                         :key (lambda (item) (plist-get item :source)) :test #'equal))))
-             (target (etaf-computed (lambda ()
-                                     (cl-find-if (lambda (item)
-                                                   (and (equal (etaf-value selected) (plist-get item :source))
-                                                        (equal (etaf-value card-token) (plist-get item :target))))
-                                                 (etaf-value moves)))))
+             (target
+              (etaf-computed
+               (lambda ()
+                 (let ((card (etaf-value card-token)))
+                   ;; Covered cards cannot accept a move and need not track
+                   ;; the live selection until their token turns face-up.
+                   (unless (equal card "🂠")
+                     (let ((chosen (etaf-value selected)))
+                       (and chosen
+                            (cl-some (lambda (item)
+                                       (and (equal chosen (plist-get item :source))
+                                            (equal card (plist-get item :target))))
+                                     (etaf-value moves)))))))))
              (highlighted
               (etaf-computed
                (lambda () (and (not (equal (etaf-value card-token) "🂠"))
