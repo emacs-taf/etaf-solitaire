@@ -29,6 +29,8 @@
 ;;;###autoload (autoload 'etaf-solitaire-view "etaf-solitaire" nil t)
 ;; Return the reactive View for SESSION, suitable for embedding in a host such
 ;; as an etaf-desktop window. The caller owns SESSION's display and lifecycle.
+;; Escape dismisses a dialog or selected card one layer at a time; with no
+;; temporary state, the enclosing host may handle it without closing the deal.
 ;;
 ;; Function: etaf-solitaire-open (&optional seed)
 ;;;###autoload (autoload 'etaf-solitaire-open "etaf-solitaire" nil t)

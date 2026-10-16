@@ -128,7 +128,8 @@
             "提示选择一条合法移动的起点，不保证最优解。撤销与重做保持隐藏牌的随机结果。"
             "牌面保持固定尺寸。窄窗口把辅助面板收进“合法移动”；不足 79 列 × 30 行时保留牌桌并裁切或滚动。")
     :background-color (etaf-solitaire--color :ui-bg) :color (etaf-solitaire--color :ui-fg)
-    :on-dismiss (lambda () (when (etaf-value selected) (setf (etaf-value selected) nil)))
+    :on-dismiss (when (etaf-value selected)
+                  (lambda () (setf (etaf-value selected) nil)))
     :keys (list
            (list "d" (lambda () (etaf-batch (setf (etaf-value selected) nil) (cl-incf (etaf-value cursor)))) "下一张待用牌")
            (list "u" (lambda () (when (eq t (etaf-gamekit-view session :can_undo))

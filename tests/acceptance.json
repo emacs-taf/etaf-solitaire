@@ -3,6 +3,11 @@
   "load_path": [".", "../../etaf-gamekit", "../../etaf-ui", "../../etaf", "../../ebox", "../../ecss"],
   "support": [],
   "cases": [
+    {
+      "name": "etaf-solitaire-embedded-escape-releases-the-host-after-selection",
+      "file": "tests/etaf-solitaire-tests.el",
+      "purpose": "Embedded help and card selection each consume one Escape before the enclosing host receives dismissal, preserving the native deal."
+    },
     {"name": "etaf-solitaire-help-entries-preserve-the-selected-card", "file": "tests/etaf-solitaire-tests.el", "purpose": "All help entries share an in-buffer searchable modal, restore focus and keep the selected card usable without changing the deal."},
     {"name": "etaf-solitaire-help-survives-native-move-publication", "file": "tests/etaf-solitaire-tests.el", "purpose": "An asynchronous OpenSpiel move publishes under help without replacing its snapshot or stealing focus; undo remains usable after closing."},
     {"name": "etaf-solitaire-card-input-moves-native-cards-and-restores-history", "file": "tests/etaf-solitaire-tests.el", "purpose": "Card and foundation activation move native cards; undo/redo restore the same deal."},

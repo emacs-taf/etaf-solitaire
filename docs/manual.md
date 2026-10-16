@@ -23,7 +23,10 @@ reimplement the rules. The native transition limit is configured to 600.
 - `N` starts a new seeded deal. Save first if the current deal should be retained.
 - `C-s` / Save and `C-o` / Load use explicit local snapshot files.
 - `F1`, `?` and the toolbar's 说明 button open the same read-only help.
-- `Escape` clears the current selection or dismisses the innermost dialog.
+- `Escape` dismisses the innermost dialog, then clears the selection on a
+  separate press. With neither present, an embedded table leaves Escape to its
+  enclosing host (for example, returning to a desktop without closing the deal).
+  A standalone table with nothing to dismiss keeps its position and game state.
 - `Q` closes the instance and buffer. Closing never saves automatically.
 
 Help shows the effective bindings and rules in the current game buffer, without

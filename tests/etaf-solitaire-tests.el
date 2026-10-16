@@ -81,6 +81,41 @@
             (etaf-solitaire-test--wait session (lambda () (= (etaf-gamekit-view session :action_count) 1)))))
       (etaf-solitaire-test--close session))))
 
+(ert-deftest etaf-solitaire-embedded-escape-releases-the-host-after-selection ()
+  "Embedded help, selected cards and host dismissal each consume one Escape."
+  (let ((session (etaf-solitaire-create 11))
+        (buffer (generate-new-buffer " *solitaire-embedded-escape*"))
+        (exits 0))
+    (unwind-protect
+        (progn
+          (etaf-solitaire-test--wait session)
+          (etaf-mount
+           buffer (etaf-node 'column
+                             (list :key-scope 'local
+                                   :on-dismiss (lambda () (cl-incf exits)))
+                             (list (etaf-solitaire-view session))))
+          (let ((runtime (etaf-runtime-for-buffer buffer)))
+            (etaf-runtime-refit runtime 1100 44)
+            (etaf-focus runtime 'solitaire-card-A♣)
+            (etaf-activate runtime)
+            (etaf-help runtime)
+            (with-current-buffer buffer
+              (etaf-solitaire-test--key "<escape>")
+              (should (= exits 0))
+              (should (string-match-p "已选 A♣"
+                                      (buffer-substring-no-properties (point-min) (point-max))))
+              (etaf-solitaire-test--key "<escape>")
+              (should (= exits 0))
+              (should-not (string-match-p "已选"
+                                          (buffer-substring-no-properties (point-min) (point-max))))
+              (etaf-solitaire-test--key "<escape>")
+              (should (= exits 1)))
+            (should (= (etaf-gamekit-view session :action_count) 0))
+            (should (eq (etaf-gamekit-status session) 'ready))))
+      (when-let* ((runtime (etaf-runtime-for-buffer buffer))) (etaf-unmount runtime))
+      (kill-buffer buffer)
+      (etaf-solitaire-test--close session))))
+
 (ert-deftest etaf-solitaire-escape-dismisses-the-selection ()
   "Framework Escape clears a picked card so a later target press is inert."
   (let ((session (etaf-gamekit-start etaf-solitaire-game :options '(:seed 11))))
