@@ -60,6 +60,15 @@
           (etaf-dispatch-event runtime 'solitaire-card-A♣ 'press)
           (let ((before (etaf-gamekit-observation session))
                 (card (etaf-host-ref-size runtime 'solitaire-card-A♣)))
+            ;; Instance-owned keyboard callbacks keep reading the live refs
+            ;; after selection and earlier theme publications.
+            (etaf-focus runtime 'solitaire-card-A♣)
+            (with-current-buffer (etaf-gamekit-buffer session)
+              (dolist (next-label '("浅色" "暗色"))
+                (etaf-solitaire-test--key "t")
+                (let ((text (buffer-substring-no-properties (point-min) (point-max))))
+                  (should (string-match-p next-label text))
+                  (should (string-match-p "已选 A♣" text)))))
             (dotimes (_ 2)
               (etaf-dispatch-event runtime 'solitaire-theme 'press)
               (should (equal before (etaf-gamekit-observation session)))
