@@ -18,6 +18,8 @@
 
 (etaf-define-component etaf-solitaire--card (&key session table selected token (lines 5) address)
   :bindings ((card-token (etaf-prop :token))
+             (rank (etaf-computed (lambda () (etaf-solitaire--rank (etaf-value card-token)))
+                                  :test #'equal))
              (moves (etaf-computed (lambda () (plist-get (etaf-value table) :moves)) :test #'equal))
              (source (etaf-computed (lambda () (cl-find (etaf-value card-token) (etaf-value moves)
                                                         :key (lambda (item) (plist-get item :source)) :test #'equal))))
@@ -26,14 +28,20 @@
                                                    (and (equal (etaf-value selected) (plist-get item :source))
                                                         (equal (etaf-value card-token) (plist-get item :target))))
                                                  (etaf-value moves)))))
+             (highlighted
+              (etaf-computed
+               (lambda () (and (not (equal (etaf-value card-token) "🂠"))
+                               (or (equal (etaf-value card-token) (etaf-value selected))
+                                   (etaf-value target))
+                               t))))
              (press (lambda () (etaf-solitaire--press session selected (etaf-value table)
                                                      (etaf-value card-token)))))
   :view
-  (etaf-playing-card :rank (etaf-solitaire--rank token) :suit (etaf-solitaire--suit token)
+  (etaf-playing-card :rank (etaf-value rank) :suit (etaf-solitaire--suit token)
     :face-down (equal token "🂠") :empty (or (null token) (equal token "🂿")
                                                   (and (etaf-solitaire--suit token) (= (length token) 1)))
     :lines lines :columns 9 :ref (or address (intern (concat "solitaire-card-" token)))
-    :selected (and (not (equal token "🂠")) (or (equal token (etaf-value selected)) (etaf-value target)))
+    :selected (etaf-value highlighted)
     :disabled (or (not (eq (etaf-gamekit-status session) 'ready))
                   (not (or (etaf-value source) (etaf-value target))))
     :on-press press))
