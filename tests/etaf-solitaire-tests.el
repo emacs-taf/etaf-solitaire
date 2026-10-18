@@ -11,7 +11,9 @@
     (while (and (< (float-time) end)
                 (not (memq (etaf-gamekit-status session) '(failed closed)))
                 (or (not (eq (etaf-gamekit-status session) 'ready))
-                    (not (etaf-host-ref-size (etaf-runtime-for-buffer (etaf-gamekit-buffer session)) 'solitaire-board))
+                    (let ((runtime (etaf-runtime-for-buffer (etaf-gamekit-buffer session))))
+                      (and runtime
+                           (not (etaf-host-ref-size runtime 'solitaire-board))))
                     (and predicate (not (funcall predicate)))))
       (accept-process-output nil 0.01)))
   (should (eq (etaf-gamekit-status session) 'ready))

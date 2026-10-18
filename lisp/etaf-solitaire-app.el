@@ -18,18 +18,20 @@
   :view #'etaf-solitaire--view)
 
 (defun etaf-solitaire-create (&optional seed)
-  "Return a session for etaf-solitaire-view without displaying it.
+  "Return a session whose single host renders it through `etaf-solitaire-view'.
 
-SEED is an optional integer.  The caller owns the session's display and
-lifecycle; release it with `etaf-gamekit-close'."
-  (etaf-gamekit-start etaf-solitaire-game
+SEED is an optional integer.  The session owns the deal and its backend
+process but mounts no presentation of its own, so one host window (or
+`etaf-solitaire-open') is the only rendering.  Release it with
+`etaf-gamekit-close'."
+  (etaf-gamekit-start etaf-solitaire-game :display nil
                       :options (list :seed (or seed (random most-positive-fixnum)))))
 
 (defun etaf-solitaire-open (&optional seed)
   "Display an independent deal with optional integer SEED and return its instance."
   (interactive)
   (let* ((session (etaf-solitaire-create seed))
-         (buffer (etaf-gamekit-buffer session)))
+         (buffer (etaf-gamekit-display session)))
     (with-current-buffer buffer
       (setq-local etaf-solitaire--session session
                   buffer-display-table (copy-sequence (or standard-display-table (make-display-table))))
