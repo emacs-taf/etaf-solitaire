@@ -6,11 +6,16 @@
 (require 'etaf-solitaire)
 
 (defun etaf-solitaire-test--wait (session &optional predicate)
-  "Await SESSION's painted board and optional PREDICATE."
+  "Await SESSION's dealt table, painted board and optional PREDICATE.
+
+A hosted session paints no board of its own, so the deal itself is the
+readiness signal: a mount that races the deal renders the placeholder instead
+of the cards."
   (let ((end (+ (float-time) 6)))
     (while (and (< (float-time) end)
                 (not (memq (etaf-gamekit-status session) '(failed closed)))
                 (or (not (eq (etaf-gamekit-status session) 'ready))
+                    (null (plist-get (etaf-gamekit-view session) :observation))
                     (let ((runtime (etaf-runtime-for-buffer (etaf-gamekit-buffer session))))
                       (and runtime
                            (not (etaf-host-ref-size runtime 'solitaire-board))))
