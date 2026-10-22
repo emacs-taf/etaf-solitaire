@@ -3,7 +3,7 @@
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "29.1") (etaf-gamekit "0.1.0") (etaf-ui "0.1.0"))
+;; Package-Requires: ((emacs "29.1") (etaf "0.3.0") (etaf-gamekit "0.1.0") (etaf-ui "0.1.0"))
 ;;; Commentary:
 ;; Verdant presents OpenSpiel's K+ Klondike rules with a native card table.
 ;; K+ folds repeated draws into available waste-card choices; it is not a
