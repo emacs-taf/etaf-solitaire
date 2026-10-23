@@ -9,12 +9,12 @@
 (declare-function etaf-solitaire-close "etaf-solitaire" (&optional instance))
 (defvar etaf-solitaire-appearance)
 
-(etaf-define-component etaf-solitaire--theme-switch (&key appearance)
+(etaf-define-component etaf-solitaire--theme-switch (&key appearance override)
   :view
   (etaf-button :label (if (eq (etaf-value appearance) 'dark) "浅色" "暗色")
     :ref 'solitaire-theme :variant 'ghost :help-echo "切换亮暗主题 · T"
-    :on-press (lambda () (setf (etaf-value appearance)
-                              (if (eq (etaf-value appearance) 'dark) 'light 'dark)))))
+    :on-press (lambda () (etaf-set-value override
+                                        (if (eq (etaf-value appearance) 'dark) 'light 'dark)))))
 
 (etaf-define-component etaf-solitaire--card (&key session table selected token (lines 5) address)
   :bindings ((card-token (etaf-prop :token))
@@ -128,9 +128,14 @@
       :wrap-mode 'word :variant 'muted)))
 
 (etaf-define-component etaf-solitaire--app (&key session)
-  :bindings ((appearance (etaf-ref (if (eq etaf-solitaire-appearance 'auto)
-                                      (if (eq (frame-parameter nil 'background-mode) 'dark) 'dark 'light)
-                                    etaf-solitaire-appearance)))
+  :bindings ((appearance-override (etaf-ref nil))
+             (appearance (etaf-computed
+                          (lambda ()
+                            (or (etaf-value appearance-override)
+                                (if (eq etaf-solitaire-appearance 'auto)
+                                    (etaf-appearance)
+                                  etaf-solitaire-appearance)))
+                          :test #'eq))
              (theme (etaf-computed (lambda () (if (eq (etaf-value appearance) 'dark)
                                                    etaf-solitaire--dark-theme etaf-solitaire--light-theme)) :test #'equal))
              (observation (etaf-computed (lambda () (etaf-gamekit-view session)) :test #'equal))
@@ -151,8 +156,8 @@
                     (list "C-s" (lambda () (etaf-solitaire--snapshot session selected "save")) "保存")
                     (list "C-o" (lambda () (etaf-solitaire--snapshot session selected "load")) "读取")
                     (list "<f1>" #'etaf-help "游戏说明")
-                    (list "t" (lambda () (setf (etaf-value appearance)
-                                               (if (eq (etaf-value appearance) 'dark) 'light 'dark))) "切换亮暗主题")
+                    (list "t" (lambda () (etaf-set-value appearance-override
+                                                        (if (eq (etaf-value appearance) 'dark) 'light 'dark))) "切换亮暗主题")
                     (list "q" (lambda () (etaf-solitaire-close session)) "退出"))))
   :setup (etaf-theme-provide theme)
   :view
@@ -185,7 +190,8 @@
             :on-press (lambda () (etaf-solitaire--snapshot session selected "save")))
           (etaf-button :label "读取" :ref 'solitaire-load :variant 'ghost
             :on-press (lambda () (etaf-solitaire--snapshot session selected "load")))
-          (etaf-solitaire--theme-switch :appearance appearance)
+          (etaf-solitaire--theme-switch :appearance appearance
+                                         :override appearance-override)
           (etaf-button :label "说明" :ref 'solitaire-help :variant 'ghost
             :on-press #'etaf-help)))
       (etaf-divider)
