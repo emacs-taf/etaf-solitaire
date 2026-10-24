@@ -26,7 +26,7 @@ choices. It is not a Windows Klondike rules emulator.
 | --- | --- | --- |
 | Emacs 29.1 or newer | the ETAF runtime | `emacs --version` |
 | `ecss`, `ebox`, `etaf`, `etaf-ui` | the framework and the `etaf-playing-card` component | every root entry is on `load-path` |
-| `etaf-gamekit` and its OpenSpiel backend | rule engine, game instance and state publication | `make -C etaf-gamekit engine-openspiel GAMEKIT_PYTHON=python3.11` |
+| `etaf-gamekit` and its OpenSpiel backend | rule engine, game instance and state publication | `M-x etaf-gamekit-install-openspiel` |
 | Python 3.11 or newer | the OpenSpiel runtime | `python3.11 --version` |
 
 ## Installation
@@ -38,8 +38,11 @@ git clone https://github.com/emacs-taf/etaf.git
 git clone https://github.com/emacs-taf/etaf-ui.git
 git clone https://github.com/emacs-taf/etaf-gamekit.git
 git clone https://github.com/emacs-taf/etaf-solitaire.git
-make -C etaf-gamekit engine-openspiel GAMEKIT_PYTHON=python3.11
 ```
+
+Then install the OpenSpiel runtime once from the package itself with
+`M-x etaf-gamekit-install-openspiel`; it writes only under
+`~/.cache/emacs-taf/game-engines`.
 
 Add every provider root and this repository to `load-path`:
 
