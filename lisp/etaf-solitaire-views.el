@@ -128,14 +128,9 @@
       :wrap-mode 'word :variant 'muted)))
 
 (etaf-define-component etaf-solitaire--app (&key session)
-  :bindings ((appearance-override (etaf-ref nil))
-             (appearance (etaf-computed
-                          (lambda ()
-                            (or (etaf-value appearance-override)
-                                (if (eq etaf-solitaire-appearance 'auto)
-                                    (etaf-appearance)
-                                  etaf-solitaire-appearance)))
-                          :test #'eq))
+  :bindings ((appearance-override (etaf-ref (unless (eq etaf-solitaire-appearance 'auto)
+                                              etaf-solitaire-appearance)))
+             (appearance (etaf-appearance-mode appearance-override))
              (theme (etaf-computed (lambda () (if (eq (etaf-value appearance) 'dark)
                                                    etaf-solitaire--dark-theme etaf-solitaire--light-theme)) :test #'equal))
              (observation (etaf-computed (lambda () (etaf-gamekit-view session)) :test #'equal))
