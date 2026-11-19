@@ -136,7 +136,12 @@
              (observation (etaf-computed (lambda () (etaf-gamekit-view session)) :test #'equal))
              (table (etaf-computed (lambda () (etaf-solitaire--table (etaf-value observation))) :test #'equal))
              (selected (etaf-ref nil)) (cursor (etaf-ref 0)) (hints (etaf-ref nil))
-             (wide (etaf-computed (lambda () (>= (or (car (etaf-viewport)) 0) (* 106 (frame-char-width))))))
+             (wide (etaf-computed
+                    (lambda ()
+                      (>= (or (car (etaf-viewport)) 0)
+                          (* 106 (or (plist-get (ignore-errors (etaf-display-metrics))
+                                                :char-width)
+                                     (frame-char-width)))))))
              (compact (etaf-computed (lambda () (< (or (cdr (etaf-viewport)) 44) 42))))
              (dismiss-selection (lambda () (setf (etaf-value selected) nil)))
              ;; Selection changes republish root props, not these commands.
